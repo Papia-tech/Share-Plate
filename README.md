@@ -14,17 +14,17 @@ Logistics,Scheduled pickups with pickup route tracking and digital signatures.
 Impact Tracking,"Quantifiable benefits including food waste reduced, meals provided, and CO2​ emissions avoided."
 
 ## 🚀 Key Features
-The system connects surplus food providers (restaurants) to food receivers (NGOs) in real-time.
-Feature,Description
-Matching Engine,Geo-location based and AI-powered to instantly notify nearby NGOs.
-Real-Time Data,Live food availability and instant NGO notifications.
-Logistics,Scheduled pickups with pickup route tracking and digital signatures.
-Impact Tracking,"Quantifiable benefits including food waste reduced, meals provided, and CO2​ emissions avoided."
+- The system connects surplus food providers (restaurants) to food receivers (NGOs) in real-time.
+- Feature,Description
+- Matching Engine,Geo-location based and AI-powered to instantly notify nearby NGOs.
+- Real-Time Data,Live food availability and instant NGO notifications.
+- Logistics,Scheduled pickups with pickup route tracking and digital signatures.
+- Impact Tracking,"Quantifiable benefits including food waste reduced, meals provided, and CO2​ emissions avoided."
 
 ## 💻 Technical Approach
 Share Plate uses a modern web/mobile application architecture designed for scalability and low maintenance cost.
 
-Frontend: HTML, CSS, JavaScript 
-Backend: Node.js + Express / Firebase 
-Database: Firebase Realtime DB / MongoDB Atlas 
-APIs: Google Maps API for location and routing
+- **Frontend:** HTML, CSS, JavaScript 
+- **Backend:** Node.js + Express / Firebase 
+- **Database:** Firebase Realtime DB / MongoDB Atlas 
+- **APIs:** Google Maps API for location and routing
