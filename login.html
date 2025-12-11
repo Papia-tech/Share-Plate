@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
     <style>
-        /* --- START OF YOUR ORIGINAL CSS --- */
         * {
             box-sizing: border-box;
             font-family: "Poppins", sans-serif;
@@ -213,7 +212,6 @@
         .button2:hover {
             background: #1e4d40;
         }
-        /* --- END OF YOUR ORIGINAL CSS --- */
     </style>
 </head>
 
@@ -258,27 +256,29 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js"></script>
+    <script type="module">
+        // 1. IMPORT MODULAR FUNCTIONS
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
 
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth.js"></script>
-
-    <script>
-        // Your provided Firebase configuration
+        // 2. YOUR FIREBASE CONFIGURATION
         const firebaseConfig = {
-            apiKey: "AIzaSyAtpe2BVlV3VDIKFiEDdB4z62VQ-TM2Gys",
-            authDomain: "share-plate-34fdf.firebaseapp.com",
-            projectId: "share-plate-34fdf",
-            storageBucket: "share-plate-34fdf.firebasestorage.app",
-            messagingSenderId: "156990402104",
-            appId: "1:156990402104:web:ebf2d1481b2d56e24e80cd",
-            measurementId: "G-R46XRCQ8F1"
+            apiKey: "AIzaSyCCmwlaccAVrpH28cOsAnHAahfJec4Tgyc",
+            authDomain: "shareplate-b6397.firebaseapp.com",
+            projectId: "shareplate-b6397",
+            storageBucket: "shareplate-b6397.firebasestorage.app",
+            messagingSenderId: "557590065392",
+            appId: "1:557590065392:web:bcb9d10f40de8b9c2c1235",
+            measurementId: "G-DEL9JRXB5X"
         };
 
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(); 
-    </script>
+        // 3. INITIALIZE FIREBASE APP AND SERVICES
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app); // Initialized but not strictly used in auth logic
+        const auth = getAuth(app); // Initialize Authentication service
 
-    <script>
+        // 4. MAIN LOGIC (Wrapped in the module for function access)
         const panel = document.getElementById("panel");
         const mini = document.getElementById("mini");
         const toggleBtn = document.getElementById("toggleBtn");
@@ -289,9 +289,16 @@
         const usernameInput = document.getElementById("username");
         const emailInput = document.getElementById("email");
         const passwordInput = document.getElementById("password");
+        
+        // Input containers for showing/hiding username
+        const usernameContainer = usernameInput.parentElement;
+
 
         let isSignup = false;
         let selectedRole = "Restaurant";
+        
+        // Hide username input initially for Login view
+        usernameContainer.style.display = 'none';
 
         // --- ROLE TOGGLE LOGIC ---
         document.querySelectorAll(".role").forEach(role => {
@@ -302,7 +309,7 @@
             };
         });
 
-        // --- PANEL TOGGLE LOGIC (Updated for Firebase Signup) ---
+        // --- PANEL TOGGLE LOGIC (Updated to show/hide username) ---
         toggleBtn.onclick = () => {
             if (!isSignup) {
                 // Switching to Sign Up
@@ -311,8 +318,9 @@
                 mini.classList.add("move-left");
 
                 title.textContent = "Sign Up";
-                mainBtn.textContent = "Create Account"; 
+                mainBtn.textContent = "Create Account";
                 toggleBtn.textContent = "Sign In ‹‹";
+                usernameContainer.style.display = 'flex'; // Show username
             } else {
                 // Switching to Login
                 panel.classList.remove("move-right");
@@ -322,19 +330,20 @@
                 title.textContent = "Login";
                 mainBtn.textContent = "Sign In";
                 toggleBtn.textContent = "Sign Up ››";
+                usernameContainer.style.display = 'none'; // Hide username
             }
             isSignup = !isSignup;
         };
 
 
-        // --- MAIN BUTTON LOGIC (Firebase Authentication Implementation) ---
+        // --- MAIN BUTTON LOGIC (Modular Firebase v9+ Implementation) ---
         mainBtn.onclick = async () => {
 
             const email = emailInput.value;
             const password = passwordInput.value;
             const username = usernameInput.value;
 
-            // Check if fields are filled based on context (Sign Up needs username, Login does not strictly need it, but we check for email/password)
+            // Check if fields are filled based on context
             if (!email || !password || (isSignup && !username)) {
                 alert("Please fill all required fields.");
                 return;
@@ -344,32 +353,33 @@
                 // --- SIGN UP LOGIC ---
                 if (isSignup) {
                     
-                    // 1. Create User
-                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    // 1. Create User (Uses imported modular function)
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                     const user = userCredential.user;
                     
-                    // 2. Send Verification Email (REQUIRED FOR AUTHENTICATION)
-                    await user.sendEmailVerification();
-
-                    // 3. Update User Profile (to store the username/displayName)
-                    await user.updateProfile({
+                    // 2. Update User Profile (Uses imported modular function)
+                    await updateProfile(user, {
                         displayName: username
                     });
                     
+                    // 3. Send Verification Email (Uses imported modular function)
+                    await sendEmailVerification(user);
+
                     // NOTE: This is where you would use a database (like Firestore) 
                     // to save the user's role (Restaurant/NGO) using the user.uid.
 
                     alert("Account created! A verification link has been sent to your email. Please verify before signing in.");
                     
                     // Sign out the new user and switch back to the Login panel
-                    await auth.signOut();
-                    panel.classList.remove("move-right");
-                    panel.classList.add("move-left");
-                    mini.classList.remove("move-left");
-                    isSignup = false;
-                    title.textContent = "Login";
-                    mainBtn.textContent = "Sign In";
-                    toggleBtn.textContent = "Sign Up ››";
+                    await signOut(auth); // Uses imported modular function
+                    
+                    // Reset to Login view
+                    toggleBtn.click(); // Programmatically switch panel
+                    
+                    // Clear inputs after successful sign-up
+                    emailInput.value = '';
+                    passwordInput.value = '';
+                    usernameInput.value = '';
 
 
                 } 
@@ -377,7 +387,8 @@
                 // --- LOGIN LOGIC ---
                 else {
                     
-                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    // Log the user in (Uses imported modular function)
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
                     const user = userCredential.user;
                     
                     if (user.emailVerified) {
@@ -385,18 +396,17 @@
                         alert(`Welcome back, ${user.displayName || user.email}! Redirecting...`);
 
                         // SIMULATION: Save user state and redirect
-                        // In a real app, you would retrieve the user's role from a database here.
                         localStorage.setItem("loggedInUser", JSON.stringify({
                             username: user.displayName,
                             email: user.email,
-                            role: selectedRole
+                            role: selectedRole // This is the role selected at login time
                         }));
                         localStorage.setItem("loggedIn", "true");
                         window.location.href = "index.html";
                         
                     } else {
                         // If not verified, sign them out and prompt them
-                        await auth.signOut();
+                        await signOut(auth); // Uses imported modular function
                         alert("Please verify your email address before logging in.");
                     }
                 }
@@ -417,11 +427,15 @@
                     case 'auth/weak-password':
                         errorMessage = "Password should be at least 6 characters.";
                         break;
+                    default:
+                        errorMessage = error.message; // Use the generic error message for unhandled codes
                 }
                 alert(`Authentication Failed: ${errorMessage}`);
                 console.error(error);
             }
         };
+
     </script>
-    </body>
+</body>
+
 </html>
