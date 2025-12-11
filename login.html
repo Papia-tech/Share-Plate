@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
     <style>
+        /* --- START OF YOUR ORIGINAL CSS --- */
         * {
             box-sizing: border-box;
             font-family: "Poppins", sans-serif;
@@ -212,6 +213,7 @@
         .button2:hover {
             background: #1e4d40;
         }
+        /* --- END OF YOUR ORIGINAL CSS --- */
     </style>
 </head>
 
@@ -256,16 +258,42 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth.js"></script>
+
+    <script>
+        // Your provided Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAtpe2BVlV3VDIKFiEDdB4z62VQ-TM2Gys",
+            authDomain: "share-plate-34fdf.firebaseapp.com",
+            projectId: "share-plate-34fdf",
+            storageBucket: "share-plate-34fdf.firebasestorage.app",
+            messagingSenderId: "156990402104",
+            appId: "1:156990402104:web:ebf2d1481b2d56e24e80cd",
+            measurementId: "G-R46XRCQ8F1"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth(); 
+    </script>
+
     <script>
         const panel = document.getElementById("panel");
         const mini = document.getElementById("mini");
         const toggleBtn = document.getElementById("toggleBtn");
         const mainBtn = document.getElementById("mainBtn");
         const title = document.getElementById("title");
+        
+        // Input elements
+        const usernameInput = document.getElementById("username");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
 
         let isSignup = false;
         let selectedRole = "Restaurant";
 
+        // --- ROLE TOGGLE LOGIC ---
         document.querySelectorAll(".role").forEach(role => {
             role.onclick = () => {
                 document.querySelectorAll(".role").forEach(r => r.classList.remove("active"));
@@ -274,16 +302,19 @@
             };
         });
 
+        // --- PANEL TOGGLE LOGIC (Updated for Firebase Signup) ---
         toggleBtn.onclick = () => {
             if (!isSignup) {
+                // Switching to Sign Up
                 panel.classList.remove("move-left");
                 panel.classList.add("move-right");
                 mini.classList.add("move-left");
 
                 title.textContent = "Sign Up";
-                mainBtn.textContent = "Create Account";
+                mainBtn.textContent = "Create Account"; 
                 toggleBtn.textContent = "Sign In ‹‹";
             } else {
+                // Switching to Login
                 panel.classList.remove("move-right");
                 panel.classList.add("move-left");
                 mini.classList.remove("move-left");
@@ -295,25 +326,102 @@
             isSignup = !isSignup;
         };
 
-        mainBtn.onclick = () => {
-            if (!username.value || !email.value || !password.value) {
-                alert("Please fill all fields");
+
+        // --- MAIN BUTTON LOGIC (Firebase Authentication Implementation) ---
+        mainBtn.onclick = async () => {
+
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            const username = usernameInput.value;
+
+            // Check if fields are filled based on context (Sign Up needs username, Login does not strictly need it, but we check for email/password)
+            if (!email || !password || (isSignup && !username)) {
+                alert("Please fill all required fields.");
                 return;
             }
 
-            const user = {
-                username: username.value,
-                email: email.value,
-                role: selectedRole
-            };
+            try {
+                // --- SIGN UP LOGIC ---
+                if (isSignup) {
+                    
+                    // 1. Create User
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    
+                    // 2. Send Verification Email (REQUIRED FOR AUTHENTICATION)
+                    await user.sendEmailVerification();
 
-            localStorage.setItem("loggedInUser", JSON.stringify(user));
-            localStorage.setItem("loggedIn", "true");
+                    // 3. Update User Profile (to store the username/displayName)
+                    await user.updateProfile({
+                        displayName: username
+                    });
+                    
+                    // NOTE: This is where you would use a database (like Firestore) 
+                    // to save the user's role (Restaurant/NGO) using the user.uid.
 
-            window.location.href = "index.html";
+                    alert("Account created! A verification link has been sent to your email. Please verify before signing in.");
+                    
+                    // Sign out the new user and switch back to the Login panel
+                    await auth.signOut();
+                    panel.classList.remove("move-right");
+                    panel.classList.add("move-left");
+                    mini.classList.remove("move-left");
+                    isSignup = false;
+                    title.textContent = "Login";
+                    mainBtn.textContent = "Sign In";
+                    toggleBtn.textContent = "Sign Up ››";
+
+
+                } 
+                
+                // --- LOGIN LOGIC ---
+                else {
+                    
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    
+                    if (user.emailVerified) {
+                        
+                        alert(`Welcome back, ${user.displayName || user.email}! Redirecting...`);
+
+                        // SIMULATION: Save user state and redirect
+                        // In a real app, you would retrieve the user's role from a database here.
+                        localStorage.setItem("loggedInUser", JSON.stringify({
+                            username: user.displayName,
+                            email: user.email,
+                            role: selectedRole
+                        }));
+                        localStorage.setItem("loggedIn", "true");
+                        window.location.href = "index.html";
+                        
+                    } else {
+                        // If not verified, sign them out and prompt them
+                        await auth.signOut();
+                        alert("Please verify your email address before logging in.");
+                    }
+                }
+            } catch (error) {
+                let errorMessage = "An unknown authentication error occurred.";
+                
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage = "Invalid email format.";
+                        break;
+                    case 'auth/user-not-found':
+                    case 'auth/wrong-password':
+                        errorMessage = "Invalid login credentials (email or password incorrect).";
+                        break;
+                    case 'auth/email-already-in-use':
+                        errorMessage = "This email address is already registered.";
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = "Password should be at least 6 characters.";
+                        break;
+                }
+                alert(`Authentication Failed: ${errorMessage}`);
+                console.error(error);
+            }
         };
     </script>
-
-</body>
-
+    </body>
 </html>
