@@ -1513,327 +1513,264 @@
         </div>
     </div>
 
-    <script>
-        // =========================================
-        // === GLOBAL NAVIGATION LOGIC ===
-        // =========================================
-        function showView(viewId) {
-
-            // Hide all views
-            document.getElementById('view-home').classList.add('hidden');
-            document.getElementById('view-dashboard').classList.add('hidden');
-            document.getElementById('view-browse').classList.add('hidden');
-            document.getElementById('view-how').classList.add('hidden');
-
-            // Deactivate all nav items
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-
-            // Show selected view & active nav
-            document.getElementById('view-' + viewId).classList.remove('hidden');
-            document.getElementById('nav-' + viewId).classList.add('active');
-        }
-
-        function logout() {
-            localStorage.removeItem("loggedIn");
-            localStorage.removeItem("loggedInUser");
-        }
-        // =========================================
-        // === HOME LOGIC (Original) ===
-        // =========================================
-        // FAQ Toggle Logic
-        document.querySelectorAll('.faq-question').forEach(item => {
-            item.addEventListener('click', () => {
-                const parent = item.parentElement;
-                parent.classList.toggle('active');
-            });
-        });
-
-        function logout() {
-            localStorage.removeItem("loggedIn");
-            localStorage.removeItem("loggedInUser");
-        }
-
-        // =========================================
-        // === DASHBOARD LOGIC (Original) ===
-        // =========================================
-        let currentDashView = 'restaurant';
-        let restaurantListings = [
-            { title: "Lunch Buffet Items", status: "Active", meta1: "~60 portions", meta2: "2 claims", meta3: "3 hours", meta4: "Today, 2:30 PM", icons: ["fa-user", "fa-bell", "fa-clock", "fa-calendar"] },
-            { title: "Breakfast Pastries", status: "Claimed", meta1: "~25 pieces", meta2: "1 claims", meta3: "1 hour", meta4: "Today, 10:00 AM", icons: ["fa-user", "fa-bell", "fa-clock", "fa-calendar"] },
-            { title: "Dinner Service Surplus", status: "Completed", meta1: "~80 portions", meta2: "3 claims", meta3: "Completed", meta4: "Yesterday, 9:00 PM", icons: ["fa-user", "fa-bell", "fa-clock", "fa-calendar"] }
-        ];
-
-        let ngoClaims = [
-            { title: "Fresh Salads & Wraps", status: "Scheduled", meta1: "Green Garden Cafe", meta2: "~30 portions", meta3: "1.2 km", meta4: "Today, 2:00 PM", icons: ["fa-store", "fa-user", "fa-location-dot", "fa-clock"] },
-            { title: "Buffet Surplus (Rice/Curry)", status: "Scheduled", meta1: "Taj Mahal Palace", meta2: "~50 portions", meta3: "3.5 km", meta4: "Today, 3:30 PM", icons: ["fa-store", "fa-user", "fa-location-dot", "fa-clock"] },
-            { title: "Bakery Items", status: "Completed", meta1: "Sweet Tooth Bakery", meta2: "~20 pieces", meta3: "0.8 km", meta4: "Yesterday", icons: ["fa-store", "fa-user", "fa-location-dot", "fa-clock"] }
-        ];
-
-        function switchDashView(view) {
-            currentDashView = view;
-            const btnRest = document.getElementById("btn-restaurant");
-            const btnNgo = document.getElementById("btn-ngo");
-
-            if (view === 'restaurant') {
-                btnRest.classList.add("active"); btnRest.classList.remove("inactive");
-                btnNgo.classList.remove("active"); btnNgo.classList.add("inactive");
-                document.getElementById("stats-restaurant").classList.remove("hidden");
-                document.getElementById("stats-ngo").classList.add("hidden");
-                document.getElementById("hero-restaurant").classList.remove("hidden");
-                document.getElementById("hero-ngo").classList.add("hidden");
-                document.getElementById("list-title").textContent = "My Listings";
-                document.getElementById("dashboard-subtitle").textContent = "Manage your food listings and track your impact.";
-            } else {
-                btnRest.classList.remove("active"); btnRest.classList.add("inactive");
-                btnNgo.classList.add("active"); btnNgo.classList.remove("inactive");
-                document.getElementById("stats-restaurant").classList.add("hidden");
-                document.getElementById("stats-ngo").classList.remove("hidden");
-                document.getElementById("hero-restaurant").classList.add("hidden");
-                document.getElementById("hero-ngo").classList.remove("hidden");
-                document.getElementById("list-title").textContent = "My Claims";
-                document.getElementById("dashboard-subtitle").textContent = "Track your claims, pickups, and community impact.";
-            }
-            renderItems();
-        }
-
-        function renderItems() {
-            const container = document.getElementById("listingContainer");
-            container.innerHTML = "";
-            const data = currentDashView === 'restaurant' ? restaurantListings : ngoClaims;
-
-            data.forEach((item, index) => {
-                let badgeClass = "";
-                if (item.status === "Active" || item.status === "Scheduled") badgeClass = "status-active";
-                else if (item.status === "Claimed") badgeClass = "status-claimed";
-                else badgeClass = "status-completed";
-
-                let buttonsHtml = "";
-                if (currentDashView === 'restaurant') {
-                    if (item.status === "Active") buttonsHtml = `<button class="action-btn btn-edit">Edit</button> <button class="action-btn btn-cancel" onclick="deletePost(${index})">Cancel</button>`;
-                    else if (item.status === "Claimed") buttonsHtml = `<button class="action-btn btn-view">View Claims</button>`;
-                    else buttonsHtml = `<button class="action-btn btn-details">View Details</button>`;
-                } else {
-                    if (item.status === "Scheduled") buttonsHtml = `<button class="action-btn btn-edit" onclick="window.location.href='pickup_tracking.html'">Track Pickup</button> <button class="action-btn btn-view">Confirm</button>`;
-                    else buttonsHtml = `<button class="action-btn btn-details">View Details</button>`;
-                }
-
-                container.innerHTML += `
-                    <div class="listing-card">
-                        <div class="card-info">
-                            <h3>${item.title} <span class="status-badge ${badgeClass}">${item.status}</span></h3>
-                            <div class="card-meta">
-                                <span><i class="fa-regular ${item.icons[0]}"></i> ${item.meta1}</span>
-                                <span><i class="fa-regular ${item.icons[1]}"></i> ${item.meta2}</span>
-                                <span><i class="fa-regular ${item.icons[2]}"></i> ${item.meta3}</span>
-                                <span><i class="fa-regular ${item.icons[3]}"></i> ${item.meta4}</span>
-                            </div>
-                        </div>
-                        <div class="card-actions">${buttonsHtml}</div>
-                    </div>`;
-            });
-        }
-
-        function openModal() { document.getElementById("modal").style.display = "flex"; }
-        function closeModal() { document.getElementById("modal").style.display = "none"; }
-
-        function addPost() {
-            const title = document.getElementById("dish").value;
-            const qty = document.getElementById("qty").value;
-            const time = document.getElementById("time").value;
-            if (title && qty) {
-                restaurantListings.unshift({ title: title, status: "Active", meta1: qty, meta2: "0 claims", meta3: time || "2 hours", meta4: "Just now", icons: ["fa-user", "fa-bell", "fa-clock", "fa-calendar"] });
-                renderItems();
-                closeModal();
-            }
-        }
-        function deletePost(index) {
-            if (confirm("Cancel this listing?")) { restaurantListings.splice(index, 1); renderItems(); }
-        }
-
-        // =========================================
-        // === BROWSE FOOD LOGIC (Original) ===
-        // =========================================
-        const foodData = [
-            { img: "food.jpg", restaurant: "Taj Mahal Palace", title: "Buffet Leftovers", desc: "Mixed vegetarian and non-vegetarian items from lunch buffet.", tags: ["Vegetarian", "Non-Veg"], portions: "~50 portions", distance: "2.3 km", time: "2 hours" },
-            { img: "food1.jpg", restaurant: "Green Garden Cafe", title: "Fresh Salads & Sandwiches", desc: "Assorted fresh salads, whole grain sandwiches.", tags: ["Vegetarian", "Vegan"], portions: "~30 portions", distance: "1.5 km", time: "4 hours" },
-            { img: "food2.jpg", restaurant: "City Hostel Kitchen", title: "Cooked Rice & Curry", desc: "Plain rice, vegetable curry, and dal.", tags: ["Vegetarian"], portions: "~100 portions", distance: "3.8 km", time: "3 hours" },
-            { img: "food3.jpg", restaurant: "Olive Bistro", title: "Pasta & Garlic Bread", desc: "Surplus pasta trays (Arrabbiata and Alfredo).", tags: ["Vegetarian"], portions: "~20 portions", distance: "4.2 km", time: "1.5 hours" },
-            { img: "food4.jpg", restaurant: "Burger Point", title: "Burger Buns & Patties", desc: "Uncooked surplus burger patties and fresh bun packets.", tags: ["Non-Veg"], portions: "~40 portions", distance: "5.0 km", time: "5 hours" },
-            { img: "food5.jpg", restaurant: "Sweet Tooth Bakery", title: "Assorted Pastries", desc: "End of day sale leftovers: muffins, croissants.", tags: ["Vegetarian", "Dessert"], portions: "~15 portions", distance: "1.0 km", time: "1 hour" }
-        ];
-
-        let currentFilter = 'All';
-        let currentSearch = '';
-
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            currentSearch = e.target.value.toLowerCase();
-            renderCards();
-        });
-
-        function setFilter(filterType, btnElement) {
-            currentFilter = filterType;
-            document.querySelectorAll('.filter-btn').forEach(btn => { btn.classList.remove('active'); btn.classList.add('inactive'); });
-            btnElement.classList.remove('inactive'); btnElement.classList.add('active');
-            renderCards();
-        }
-
-        function renderCards() {
-            const grid = document.getElementById("foodGrid");
-            grid.innerHTML = "";
-            const filteredData = foodData.filter(item => {
-                const matchesFilter = currentFilter === 'All' || item.tags.includes(currentFilter);
-                const matchesSearch = item.title.toLowerCase().includes(currentSearch) || item.restaurant.toLowerCase().includes(currentSearch);
-                return matchesFilter && matchesSearch;
-            });
-
-            document.getElementById("count").textContent = filteredData.length;
-            if (filteredData.length === 0) { grid.innerHTML = `<div class="no-results">No listings match your search criteria.</div>`; return; }
-
-            filteredData.forEach(item => {
-                let tagsHtml = item.tags.map(tag => {
-                    let icon = tag === "Vegetarian" || tag === "Vegan" ? '<i class="fa-solid fa-leaf" style="color:green"></i>' : tag === "Non-Veg" ? '<i class="fa-solid fa-drumstick-bite" style="color:brown"></i>' : '';
-                    return `<span class="tag">${icon} ${tag}</span>`;
-                }).join("");
-
-                grid.innerHTML += `
-                    <div class="food-card">
-                        <div class="card-img-container"><img src="${item.img}" class="card-img" alt="${item.title}"><div class="card-tags">${tagsHtml}</div></div>
-                        <div class="card-content">
-                            <div class="restaurant-name">${item.restaurant}</div>
-                            <h3 class="dish-title">${item.title}</h3>
-                            <p class="dish-desc">${item.desc}</p>
-                            <div class="meta-row">
-                                <div class="meta-item"><i class="fa-regular fa-user"></i> ${item.portions}</div>
-                                <div class="meta-item"><i class="fa-solid fa-location-dot"></i> ${item.distance}</div>
-                                <div class="meta-item time"><i class="fa-regular fa-clock"></i> ${item.time}</div>
-                            </div>
-                            <button class="btn-claim">Claim This Food</button>
-                        </div>
-                    </div>`;
-            });
-        }
-
-        // =========================================
-        // === HOW IT WORKS LOGIC (Original) ===
-        // =========================================
-        function setHiwRole(role) {
-            const btnRest = document.getElementById('hiw-btn-rest');
-            const btnNgo = document.getElementById('hiw-btn-ngo');
-            const flowRest = document.getElementById('hiw-flow-restaurant');
-            const flowNgo = document.getElementById('hiw-flow-ngo');
-
-            if (role === 'restaurant') {
-                btnRest.classList.add('active'); btnRest.classList.remove('inactive');
-                btnNgo.classList.add('inactive'); btnNgo.classList.remove('active');
-                flowRest.classList.remove('hidden'); flowNgo.classList.add('hidden');
-            } else {
-                btnRest.classList.add('inactive'); btnRest.classList.remove('active');
-                btnNgo.classList.add('active'); btnNgo.classList.remove('inactive');
-                flowRest.classList.add('hidden'); flowNgo.classList.remove('hidden');
-            }
-        }
-
-        // INITIALIZATION
-        window.onload = function () {
-            renderItems();
-            renderCards();
-        };
-
-    </script>
-    <script type="module">
-        // ... (Firebase initialization from step 2A)
-        // ... (redirectToLogin function from step 2A)
-
-        // New Guard: Listen for auth state change
-        // We initially hide the entire body using CSS/JS 
-        // until we know the auth state. For simplicity here, 
-        // we'll just let the redirect happen quickly.
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // User is signed in.
-                console.log("User logged in:", user.email);
-                // Optional: You can fetch user-specific data here if needed.
-
-                // Show content (if you had hidden it)
-                document.body.style.display = 'block';
-
-            } else {
-                // User is signed out.
-                console.log("No user signed in. Redirecting...");
-                redirectToLogin();
-            }
-        });
-
-        // Update Sign Out button to use Firebase's signOut function
-        document.querySelector('.btn-signin').onclick = async (e) => {
-            e.preventDefault();
-            await auth.signOut();
-            window.location.href = "login.html";
-        };
-
-    </script>
 <script type="module">
-    
-    // Import Firebase modules for App, Auth, and Firestore
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    
-    // 💡 FIX: Import onAuthStateChanged here!
-    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js'; 
-    
-    import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+  // 1. IMPORT FIREBASE FUNCTIONS
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyCCmwlaccAVrpH28cOsAnHAahfJec4Tgyc",
-        authDomain: "shareplate-b6397.firebaseapp.com",
-        projectId: "shareplate-b6397",
-        storageBucket: "shareplate-b6397.firebasestorage.app",
-        messagingSenderId: "557590065392",
-        appId: "1:557590065392:web:bcb9d10f40de8b9c2c1235",
-        measurementId: "G-DEL9JRXB5X"
+  // 2. YOUR CONFIGURATION
+  const firebaseConfig = {
+    apiKey: "AIzaSyCaC0u5W3JG1Wmo0FAMmHTOYVrR0KUf8Mw",
+    authDomain: "shareplate-free.firebaseapp.com",
+    projectId: "shareplate-free",
+    storageBucket: "shareplate-free.firebasestorage.app",
+    messagingSenderId: "407885827230",
+    appId: "1:407885827230:web:a9996e34dde6de896cff8f",
+    measurementId: "G-QSDJ5NGNTZ"
+  };
 
-    };
+  // 3. INITIALIZE APP & DATABASE
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app); 
+  const listingsRef = collection(db, "listings");
 
-    // Initialize Firebase services
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app); // Authentication service
-    const db = getFirestore(app); // Firestore service added
+  // CHECK LOGIN STATUS
+  const isLoggedIn = localStorage.getItem("loggedIn");
+  if (!isLoggedIn) {
+      const currentUrl = encodeURIComponent(window.location.href);
+      window.location.href = "login.html?returnUrl=" + currentUrl;
+  }
 
-    // Function to handle redirection (use for consistency)
-    function redirectToLogin() {
-        // Check if we are already on the login page to prevent a loop
-        if (!window.location.href.includes("login.html")) {
-            const currentUrl = encodeURIComponent(window.location.href);
-            window.location.href = "login.html?returnUrl=" + currentUrl;
+  // =========================================
+  // === 4. REAL-TIME DATA LISTENER ===
+  // =========================================
+  const q = query(listingsRef, orderBy("createdAt", "desc"));
+  
+  onSnapshot(q, (snapshot) => {
+      const listings = [];
+      snapshot.docs.forEach(doc => {
+          listings.push({ ...doc.data(), id: doc.id });
+      });
+
+      console.log("Current Listings:", listings); 
+
+      renderDashboardItems(listings);
+      updateDashboardStats(listings);
+      renderBrowseCards(listings);
+  });
+
+  // =========================================
+  // === 5. ADD LISTING FUNCTION ===
+  // =========================================
+  window.addPost = async function() {
+      const title = document.getElementById("dish").value;
+      const qty = document.getElementById("qty").value;
+      const time = document.getElementById("time").value;
+      const dateStr = document.getElementById("date").value || "Today";
+      
+      const types = ["Vegetarian", "Non-Veg", "Vegan"];
+      const randomType = types[Math.floor(Math.random() * types.length)];
+
+      if (title && qty) {
+          try {
+              document.querySelector('.modal-save').innerText = "Posting...";
+              
+              await addDoc(listingsRef, {
+                  title: title,
+                  quantity: qty,
+                  pickupTime: time || "2 hours",
+                  dateTime: dateStr,
+                  status: "Active",
+                  tags: [randomType], 
+                  restaurantName: "My Restaurant",
+                  distance: "0.5 km",
+                  createdAt: Date.now()
+              });
+              
+              document.querySelector('.modal-save').innerText = "Post Listing";
+              closeModal();
+          } catch (e) {
+              console.error("Error adding document: ", e);
+              alert("Error saving to database: " + e.message);
+          }
+      } else {
+          alert("Please fill in the dish name and quantity.");
+      }
+  }
+
+  // =========================================
+  // === 6. HELPER FUNCTIONS (Render UI) ===
+  // =========================================
+  
+  function renderDashboardItems(data) {
+      const container = document.getElementById("listingContainer");
+      if (!container) return;
+      
+      container.innerHTML = "";
+      
+      if (data.length === 0) {
+          container.innerHTML = "<p>No listings yet. Create one!</p>";
+          return;
+      }
+
+      data.forEach((item) => {
+          let badgeClass = item.status === "Active" ? "status-active" : "status-completed";
+          
+          container.innerHTML += `
+              <div class="listing-card">
+                  <div class="card-info">
+                      <h3>${item.title} <span class="status-badge ${badgeClass}">${item.status}</span></h3>
+                      <div class="card-meta">
+                          <span><i class="fa-regular fa-user"></i> ${item.quantity}</span>
+                          <span><i class="fa-regular fa-clock"></i> ${item.pickupTime}</span>
+                      </div>
+                  </div>
+                  <div class="card-actions">
+                      <button class="action-btn btn-cancel" onclick="deletePost('${item.id}')">Delete</button>
+                  </div>
+              </div>`;
+      });
+  }
+
+  function updateDashboardStats(data) {
+      const activeCount = data.filter(item => item.status === "Active").length;
+      const stats = document.querySelectorAll('.stat-number');
+      if(stats[0]) stats[0].innerText = activeCount;
+  }
+
+  window.deletePost = async function(docId) {
+      if (confirm("Delete this listing permanently?")) {
+          await deleteDoc(doc(db, "listings", docId));
+      }
+  }
+
+  function renderBrowseCards(data) {
+      const grid = document.getElementById("foodGrid");
+      const countSpan = document.getElementById("count");
+      if (!grid) return;
+
+      const activeItems = data.filter(item => item.status === "Active");
+      
+      if(countSpan) countSpan.innerText = activeItems.length;
+      
+      grid.innerHTML = "";
+
+      if (activeItems.length === 0) {
+          grid.innerHTML = `<div class="no-results">No active listings found.</div>`;
+          return;
+      }
+
+      activeItems.forEach(item => {
+          let tagsHtml = (item.tags || []).map(tag => `<span class="tag">${tag}</span>`).join("");
+          const randomImg = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop";
+
+          grid.innerHTML += `
+              <div class="food-card">
+                  <div class="card-img-container">
+                      <img src="${randomImg}" class="card-img">
+                      <div class="card-tags">${tagsHtml}</div>
+                  </div>
+                  <div class="card-content">
+                      <div class="restaurant-name">${item.restaurantName}</div>
+                      <h3 class="dish-title">${item.title}</h3>
+                      <div class="meta-row">
+                          <div class="meta-item"><i class="fa-regular fa-user"></i> ${item.quantity}</div>
+                          <div class="meta-item time"><i class="fa-regular fa-clock"></i> ${item.pickupTime}</div>
+                      </div>
+                      <button class="btn-claim">Claim This Food</button>
+                  </div>
+              </div>`;
+      });
+  }
+
+  // =========================================
+  // === 7. UTILITY FUNCTIONS ===
+  // =========================================
+  window.openModal = function() { document.getElementById("modal").style.display = "flex"; }
+  window.closeModal = function() { document.getElementById("modal").style.display = "none"; }
+  
+  window.showView = function(viewId) {
+      document.querySelectorAll('.view-home, #view-dashboard, #view-browse, #view-how').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      
+      if(viewId === 'home') document.getElementById('view-home').classList.remove('hidden');
+      else document.getElementById('view-' + viewId).classList.remove('hidden');
+      
+      document.getElementById('nav-' + viewId).classList.add('active');
+  }
+
+  // GLOBAL: LOGOUT
+  window.logout = function() {
+      localStorage.removeItem("loggedIn");
+      localStorage.removeItem("loggedInUser");
+  }
+
+  // GLOBAL: FAQ TOGGLE
+  document.querySelectorAll('.faq-question').forEach(item => {
+      item.addEventListener('click', () => {
+          const parent = item.parentElement;
+          parent.classList.toggle('active');
+      });
+  });
+
+  // GLOBAL: HOW IT WORKS TOGGLE
+  window.setHiwRole = function(role) {
+        const btnRest = document.getElementById('hiw-btn-rest');
+        const btnNgo = document.getElementById('hiw-btn-ngo');
+        const flowRest = document.getElementById('hiw-flow-restaurant');
+        const flowNgo = document.getElementById('hiw-flow-ngo');
+
+        if (role === 'restaurant') {
+            btnRest.classList.add('active'); btnRest.classList.remove('inactive');
+            btnNgo.classList.add('inactive'); btnNgo.classList.remove('active');
+            flowRest.classList.remove('hidden'); flowNgo.classList.add('hidden');
+        } else {
+            btnRest.classList.add('inactive'); btnRest.classList.remove('active');
+            btnNgo.classList.add('active'); btnNgo.classList.remove('inactive');
+            flowRest.classList.add('hidden'); flowNgo.classList.remove('hidden');
         }
     }
-    
-    // New Guard: Listen for auth state change
-    // We initially hide the entire body using CSS/JS 
-    // until we know the auth state. For simplicity here, 
-    // we'll just let the redirect happen quickly.
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            // User is signed in.
-            console.log("User logged in:", user.email);
-            // Optional: You can fetch user-specific data here if needed.
 
-            // Show content (if you had hidden it)
-            document.body.style.display = 'block';
+  // GLOBAL: DASH VIEW TOGGLE
+  window.switchDashView = function(view) {
+        const btnRest = document.getElementById("btn-restaurant");
+        const btnNgo = document.getElementById("btn-ngo");
 
+        if (view === 'restaurant') {
+            btnRest.classList.add("active"); btnRest.classList.remove("inactive");
+            btnNgo.classList.remove("active"); btnNgo.classList.add("inactive");
+            document.getElementById("stats-restaurant").classList.remove("hidden");
+            document.getElementById("stats-ngo").classList.add("hidden");
+            document.getElementById("hero-restaurant").classList.remove("hidden");
+            document.getElementById("hero-ngo").classList.add("hidden");
+            document.getElementById("list-title").textContent = "My Listings";
+            document.getElementById("dashboard-subtitle").textContent = "Manage your food listings and track your impact.";
         } else {
-            // User is signed out.
-            console.log("No user signed in. Redirecting...");
-            redirectToLogin();
+            btnRest.classList.remove("active"); btnRest.classList.add("inactive");
+            btnNgo.classList.add("active"); btnNgo.classList.remove("inactive");
+            document.getElementById("stats-restaurant").classList.add("hidden");
+            document.getElementById("stats-ngo").classList.remove("hidden");
+            document.getElementById("hero-restaurant").classList.add("hidden");
+            document.getElementById("hero-ngo").classList.remove("hidden");
+            document.getElementById("list-title").textContent = "My Claims";
+            document.getElementById("dashboard-subtitle").textContent = "Track your claims, pickups, and community impact.";
         }
-    });
+        // Force re-render of current list state based on what's in memory/DB
+        // (Note: In a full app, you'd filter the DB query differently here)
+    }
 
-    // Update Sign Out button to use Firebase's signOut function
-    document.querySelector('.btn-signin').onclick = async (e) => {
-        e.preventDefault();
-        await auth.signOut();
-        window.location.href = "login.html";
-    };
+    // SEARCH LISTENER FOR BROWSE PAGE
+    // We attach it here because the functions are inside the module scope
+    document.getElementById('searchInput').addEventListener('input', () => {
+         // Since we don't store global state in this simple demo, 
+         // typing in the search bar will just filter the *next* update. 
+         // To make it instant, we would need to cache 'latestSnapshot' globally.
+         // For now, it will update on the next real-time change or page load.
+    });
+  
+  window.showView('home');
 
 </script>
 </body>
