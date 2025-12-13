@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SharePlate | Unified Platform</title>
     <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Merriweather:wght@400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Merriweather:wght=400;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
@@ -1043,6 +1044,23 @@
             margin-bottom: 5px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* NEW: Map icon style */
+        .restaurant-map-icon {
+            font-size: 14px;
+            color: #2d7a4d;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: color 0.2s;
+        }
+
+        .restaurant-map-icon:hover {
+            color: #1e5c38;
         }
 
         .dish-title {
@@ -1184,6 +1202,7 @@
             text-align: center;
         }
 
+        /* Profile Avatar Changes */
         .profile-avatar {
             width: 80px;
             height: 80px;
@@ -1196,7 +1215,44 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden; /* Important for image */
+            position: relative;
         }
+        
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* New photo upload styling for the modal */
+        .profile-photo-controls {
+            margin-bottom: 25px;
+        }
+        
+        .profile-photo-controls label {
+            background: var(--light-green-bg);
+            color: var(--primary-green);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .profile-photo-controls label:hover {
+            background: var(--primary-green);
+            color: white;
+        }
+        
+        #profile-photo-upload {
+            display: none;
+        }
+
 
         .profile-info p {
             font-size: 15px;
@@ -1255,6 +1311,79 @@
             padding: 0;
             margin-bottom: 0;
             box-shadow: none;
+        }
+        
+        /* === Phone Input Styling === */
+        .phone-input-group {
+            display: flex;
+            gap: 5px;
+            width: 100%;
+        }
+
+        .phone-input-group select {
+            flex: 0 0 35%; /* Adjust width for country code */
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+        }
+
+        .phone-input-group input {
+            flex: 1;
+            width: auto; /* Override 100% width from general input style */
+        }
+        
+        /* Map specific styles */
+        .map-wrapper {
+            grid-column: 1 / -1;
+            padding: 10px 0;
+        }
+        .map-container {
+            width: 100%;
+            height: 200px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* New Address input layout for location button */
+        .address-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .address-input-container input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .location-btn {
+            padding: 10px;
+            background: var(--light-green-bg);
+            color: var(--primary-green);
+            border: 1px solid var(--primary-green);
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .location-btn:hover {
+            background: var(--primary-green);
+            color: white;
         }
 
         /* === NEW ADD LISTING CARD === */
@@ -1333,6 +1462,10 @@
 
             .form-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .phone-input-group select {
+                flex: 0 0 40%;
             }
         }
     </style>
@@ -1446,7 +1579,7 @@
             </div>
 
             <div class="footer">
-                <p>&copy; 2025 SharePlate. All rights reserved.</p>
+                <p>© 2025 SharePlate. All rights reserved.</p>
                 <div class="social-links">
                     <i class="fa-brands fa-square-instagram"></i>
                     <i class="fa-brands fa-square-facebook"></i>
@@ -1649,10 +1782,20 @@
         <div class="profile-modal">
             <div class="modal-header">
                 <h2>Your Profile</h2>
-                <button class="modal-close-btn" onclick="toggleProfileModal(event)">&times;</button>
+                <button class="modal-close-btn" onclick="toggleProfileModal(event)">×</button>
             </div>
             <div class="modal-body">
-                <div class="profile-avatar"><i class="fa-solid fa-leaf"></i></div>
+                <div class="profile-avatar" id="profileAvatar">
+                    <i class="fa-solid fa-leaf"></i>
+                    <img id="profileImage" src="" class="hidden" alt="Profile Photo">
+                </div>
+                
+                <div class="profile-photo-controls">
+                    <label for="profile-photo-upload">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Change Photo
+                    </label>
+                    <input type="file" id="profile-photo-upload" accept="image/*" onchange="handleProfilePhotoUpload(this)">
+                </div>
                 <div class="profile-info">
                     <p><strong>Name:</strong> <span id="profileName">Loading...</span></p>
                     <p><strong>Email:</strong> <span id="profileEmail">Loading...</span></p>
@@ -1661,18 +1804,45 @@
             </div>
         </div>
     </div>
+    
+    <div id="browseMapModal" class="profile-modal-overlay hidden">
+        <div class="profile-modal">
+            <div class="modal-header">
+                <h2 id="browseMapTitle">Restaurant Location</h2>
+                <button class="modal-close-btn" onclick="toggleBrowseMapModal(false)">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="map-container" style="height: 250px; margin-bottom: 15px; border: none;">
+                     <iframe id="browse-restaurant-map" src="https://maps.google.com/maps?q=1600%20Amphitheatre%20Parkway,%20Mountain%20View,%20CA&t=&z=13&ie=UTF8&iwloc=&output=embed" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+                <p style="text-align: left; padding: 0 10px; font-size: 14px;">
+                    <strong>Address:</strong> <span id="browseMapAddress">Loading...</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
 
     <div id="listingModal" class="listing-modal-overlay hidden">
         <div class="listing-modal">
             <div class="modal-header">
                 <h2 id="modal-title">Create Food Listing</h2>
-                <button class="modal-close-btn" onclick="toggleCreateModal(false)">&times;</button>
+                <button class="modal-close-btn" onclick="toggleCreateModal(false)">×</button>
             </div>
             <div class="listing-form">
                 <div class="form-grid">
                     <input type="text" id="restaurant-name" placeholder="Restaurant Name">
-                    <input type="text" id="restaurant-phone" placeholder="Phone Number">
-
+                    
+                    <div class="phone-input-group">
+                        <select id="country-code-select">
+                            <option value="+91" selected>+91 (India)</option>
+                            <option value="+1">+1 (USA)</option>
+                            <option value="+44">+44 (UK)</option>
+                            <option value="+61">+61 (AUS)</option>
+                            <option value="+49">+49 (GER)</option>
+                        </select>
+                        <input type="text" id="restaurant-phone" placeholder="Phone Number (10 digits)">
+                    </div>
                     <input type="text" id="dish-name" placeholder="Food Name (e.g., Lunch Buffet)">
                     <input type="number" id="portions-available" placeholder="Portions Available">
 
@@ -1690,7 +1860,19 @@
                         <input type="file" id="food-image-upload" accept="image/*" onchange="updateFileName(this)">
                     </label>
 
-                    <input type="text" id="restaurant-address" placeholder="Restaurant Address" class="form-group-full">
+                    <div class="map-wrapper form-group-full">
+                        <div class="map-container">
+                            <iframe id="restaurant-map" src="https://maps.google.com/maps?q=1600%20Amphitheatre%20Parkway,%20Mountain%20View,%20CA&t=&z=13&ie=UTF8&iwloc=&output=embed" allowfullscreen="" loading="lazy"></iframe>
+                        </div>
+                        <div class="address-input-container">
+                            <input type="text" id="restaurant-address" placeholder="Restaurant Address">
+                            <button type="button" class="location-btn" onclick="getCurrentLocation()" title="Use Current Location">
+                                <i class="fa-solid fa-location-crosshairs"></i>
+                            </button>
+                        </div>
+                        <small id="location-status" style="grid-column: 1 / -1; color: var(--text-muted); margin-top: 5px;">Enter address or use location button.</small>
+                    </div>
+                    
                     <textarea id="food-description" placeholder="Food Description" class="form-group-full"></textarea>
                 </div>
                 <button class="create-btn" style="margin-top: 20px;" onclick="addPost()" id="modal-submit-btn">
@@ -1731,7 +1913,7 @@
         // Edit State Variables
         let isEditing = false;
         let editDocId = null;
-        let cachedMyData = []; // Store data locally to find it for editing
+        let cachedMyData = []; // Store data locally for Dashboard (Restaurant listings OR NGO claims)
         let cachedBrowseData = []; // Store active listings for filtering
 
         // Filter State
@@ -1765,23 +1947,134 @@
         window.updateFileName = function (input) {
             const display = document.getElementById("file-name-display");
             if (input.files && input.files.length > 0) {
-                display.textContent = input.files[0].name; // Show the filename
+                // do not use second brackets in print.
+                display.textContent = input.files[0].name; 
                 display.style.color = "#2d7a4d"; // Turn text green
                 display.style.fontWeight = "600";
             } else {
+                // do not use second brackets in print.
                 display.textContent = "Upload Food Image (Optional)";
                 display.style.color = "#666";
             }
         }
-
+        
         // =========================================
-        // === 5. ADD / UPDATE LISTING FUNCTION ===
+        // === NEW: MAP/LOCATION UTILITY FUNCTION ===
+        // =========================================
+        // Modified to accept optional mapIframeId
+        window.updateMap = function (address, mapIframeId = 'restaurant-map') {
+            const mapIframe = document.getElementById(mapIframeId);
+            if (mapIframe) {
+                // Encode the address for the Google Maps query URL
+                const encodedAddress = encodeURIComponent(address);
+                // Use a generic Google Maps embed URL as a placeholder for dynamic address lookup
+                // do not use second brackets in print.
+                mapIframe.src = `https://maps.google.com/maps?q=$?q=${encodedAddress}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+            }
+        }
+        
+        // MODIFIED: getCurrentLocation to perform reverse geocoding via Nominatim
+        window.getCurrentLocation = function() {
+            const addressInput = document.getElementById('restaurant-address');
+            const statusMessage = document.getElementById('location-status');
+            
+            if (navigator.geolocation) {
+                // do not use second brackets in print.
+                statusMessage.textContent = "Getting location...";
+                
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // Use a public reverse geocoding service (Nominatim/OpenStreetMap)
+                        // do not use second brackets in print.
+                        const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+                        
+                        try {
+                            const response = await fetch(nominatimUrl);
+                            const data = await response.json();
+                            
+                            // do not use second brackets in print.
+                            let areaName = "Address not found";
+                            
+                            if (data.address) {
+                                // Prioritize known area fields for a cleaner "area wise" output
+                                const address = data.address;
+                                areaName = [
+                                    address.road,
+                                    address.suburb || address.neighbourhood,
+                                    address.village || address.town || address.city,
+                                    address.state,
+                                    address.postcode
+                                ].filter(Boolean).join(', ');
+                                
+                                // Fallback to display name if the constructed address is too specific or missing key components
+                                if (areaName.length < 15 || areaName.includes('undefined')) {
+                                     areaName = data.display_name;
+                                }
+                            }
+                            
+                            addressInput.value = areaName;
+                            updateMap(areaName); 
+                            // do not use second brackets in print.
+                            statusMessage.textContent = `Location set to area: ${areaName.substring(0, 50)}...`;
+
+                        } catch (e) {
+                            console.error("Reverse Geocoding Error:", e);
+                            // do not use second brackets in print.
+                            const simulatedAddress = `Approximate location: Lat ${lat.toFixed(4)}, Lng ${lng.toFixed(4)}`;
+                            addressInput.value = simulatedAddress;
+                            updateMap(simulatedAddress); 
+                            // do not use second brackets in print.
+                            statusMessage.textContent = "Could not get full address from service. Showing coordinates.";
+                        }
+                    },
+                    (error) => {
+                        // do not use second brackets in print.
+                        let msg = "Geolocation failed: ";
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                // do not use second brackets in print.
+                                msg += "User denied the request for Geolocation. Please allow location access.";
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                // do not use second brackets in print.
+                                msg += "Location information is unavailable.";
+                                break;
+                            case error.TIMEOUT:
+                                // do not use second brackets in print.
+                                msg += "The request to get user location timed out.";
+                                break;
+                            case error.UNKNOWN_ERROR:
+                                // do not use second brackets in print.
+                                msg += "An unknown error occurred.";
+                                break;
+                        }
+                        // do not use second brackets in print.
+                        statusMessage.textContent = msg;
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else {
+                // do not use second brackets in print.
+                statusMessage.textContent = "Geolocation is not supported by this browser.";
+            }
+        }
+        
+        // =========================================
+        // === 5. ADD / UPDATE LISTING FUNCTION (MODIFIED) ===
         // =========================================
         window.addPost = async function () {
             const title = document.getElementById("dish-name").value;
             const qty = document.getElementById("portions-available").value;
             const restName = document.getElementById("restaurant-name").value;
-            const restPhone = document.getElementById("restaurant-phone").value; // Added phone capture
+            
+            // NEW: Get Country Code and Phone Number
+            const countryCode = document.getElementById("country-code-select").value;
+            const phoneNumber = document.getElementById("restaurant-phone").value.trim();
+            const fullPhoneNumber = countryCode + " " + phoneNumber;
+
             const restAddr = document.getElementById("restaurant-address").value;
             const pickupHours = document.getElementById("pickup-hours").value;
             const desc = document.getElementById("food-description").value;
@@ -1790,12 +2083,24 @@
 
             // Basic Validation
             if (!title || !qty || !restName) {
+                // do not use second brackets in print.
                 alert("Please fill in the required fields (Name, Quantity, Restaurant Name).");
                 return;
             }
+            
+            // NEW: Phone Number Validation
+            const phoneDigits = phoneNumber.replace(/\D/g, ''); // Remove all non-digits
+            if (phoneDigits.length !== 10) {
+                 // do not use second brackets in print.
+                alert("Please enter a valid 10-digit phone number in the Phone Number field.");
+                return;
+            }
+
 
             const createBtn = document.getElementById("modal-submit-btn"); // Changed selector to target the modal button
+            // do not use second brackets in print.
             const originalBtnText = isEditing ? "Update Listing" : "Post New Listing";
+            // do not use second brackets in print.
             createBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
             createBtn.disabled = true;
 
@@ -1806,7 +2111,9 @@
                 if (fileInput.files.length > 0) {
                     const file = fileInput.files[0];
                     if (file.size > 800 * 1024) {
+                        // do not use second brackets in print.
                         alert("Image is too large! Please use images under 800KB.");
+                        // do not use second brackets in print.
                         createBtn.innerHTML = originalBtnText;
                         createBtn.disabled = false;
                         return;
@@ -1822,7 +2129,7 @@
                     status: "Active",
                     tags: [type], // Use the selected type
                     restaurantName: restName,
-                    restaurantPhone: restPhone, // Save phone number
+                    restaurantPhone: fullPhoneNumber, // Save combined phone number
                     restaurantAddress: restAddr,
                     description: desc,
                     createdBy: currentUser,
@@ -1838,12 +2145,14 @@
                     // UPDATE EXISTING DOC
                     const docRef = doc(db, "listings", editDocId);
                     await updateDoc(docRef, dataPayload);
+                    // do not use second brackets in print.
                     alert("Listing updated successfully!");
                     cancelEdit(); // Reset form and close modal
                 } else {
                     // CREATE NEW DOC
                     if (!imageString) dataPayload.imageUrl = ""; // Ensure field exists
                     await addDoc(listingsRef, dataPayload);
+                    // do not use second brackets in print.
                     alert("Listing posted successfully!");
                     clearForm();
                     toggleCreateModal(false); // Close modal on success
@@ -1851,25 +2160,38 @@
 
             } catch (e) {
                 console.error("Error adding/updating document: ", e);
+                 // do not use second brackets in print.
                 alert("Error: " + e.message);
             } finally {
+                 // do not use second brackets in print.
                 createBtn.innerHTML = isEditing ? '<i class="fa-solid fa-pen"></i> Update Listing' : '<i class="fa-solid fa-plus"></i> Post New Listing';
                 createBtn.disabled = false;
             }
         }
 
-        // Helper to clear form
+        // Helper to clear form (MODIFIED)
         function clearForm() {
             document.getElementById("dish-name").value = '';
             document.getElementById("portions-available").value = '';
             document.getElementById("restaurant-name").value = '';
+            
+            // MODIFIED: Reset phone fields
+            document.getElementById("country-code-select").value = '+91';
             document.getElementById("restaurant-phone").value = '';
+            
             document.getElementById("restaurant-address").value = '';
             document.getElementById("food-description").value = '';
             document.getElementById("pickup-hours").value = '';
             document.getElementById("food-image-upload").value = '';
+            
+            // Reset map and status
+            updateMap('1600 Amphitheatre Parkway, Mountain View, CA');
+            // do not use second brackets in print.
+            document.getElementById('location-status').textContent = "Enter address or use location button.";
+
 
             const display = document.getElementById("file-name-display");
+            // do not use second brackets in print.
             display.textContent = "Upload Food Image (Optional)";
             display.style.color = "#666";
         }
@@ -1878,28 +2200,54 @@
         // === EDITING FUNCTIONS (MODIFIED) ===
         // =========================================
         window.editPost = function (id) {
+            // Find in cachedMyData (used for Restaurant listings)
             const item = cachedMyData.find(i => i.id === id);
             if (!item) return;
 
             // Populate fields
             document.getElementById("restaurant-name").value = item.restaurantName;
-            document.getElementById("restaurant-phone").value = item.restaurantPhone || '';
+            
+            // MODIFIED: Split the saved phone number back into code and number
+            const fullPhone = item.restaurantPhone || '+91 '; // Default if missing
+            const parts = fullPhone.split(' ');
+            const code = parts[0];
+            const number = parts.slice(1).join(' '); // Rejoin remaining parts for the number
+
+            // Ensure we set a valid code, otherwise use default
+            const codeSelect = document.getElementById("country-code-select");
+            if ([...codeSelect.options].map(o => o.value).includes(code)) {
+                codeSelect.value = code;
+            } else {
+                 codeSelect.value = '+91'; // Default to India if code is unrecognized
+            }
+            document.getElementById("restaurant-phone").value = number.trim();
+
+
             document.getElementById("dish-name").value = item.title;
             document.getElementById("portions-available").value = item.quantity;
             document.getElementById("food-type").value = item.tags ? item.tags[0] : 'Vegetarian';
             document.getElementById("pickup-hours").value = item.pickupTime;
-            document.getElementById("restaurant-address").value = item.restaurantAddress;
+            const address = item.restaurantAddress;
+            document.getElementById("restaurant-address").value = address;
             document.getElementById("food-description").value = item.description || '';
 
+            // Update map with existing address
+            updateMap(address);
+            
             // Set Edit Mode
             isEditing = true;
             editDocId = id;
 
             // Update Modal UI
+            // do not use second brackets in print.
             document.getElementById('modal-title').textContent = "Edit Food Listing";
             const createBtn = document.getElementById('modal-submit-btn');
+            // do not use second brackets in print.
             createBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Listing';
             document.getElementById('cancel-edit-btn').classList.remove('hidden');
+            // do not use second brackets in print.
+            document.getElementById('location-status').textContent = "Location loaded from listing details.";
+
 
             // Open the modal
             toggleCreateModal(true);
@@ -1911,8 +2259,10 @@
             clearForm();
 
             // Reset Modal UI
+            // do not use second brackets in print.
             document.getElementById('modal-title').textContent = "Create Food Listing";
             const createBtn = document.getElementById('modal-submit-btn');
+            // do not use second brackets in print.
             createBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Post New Listing';
             document.getElementById('cancel-edit-btn').classList.add('hidden');
 
@@ -1921,10 +2271,12 @@
         }
 
         // =========================================
-        // === NGO CLAIM & PICKUP FUNCTIONALITY ===
+        // === NGO CLAIM & PICKUP FUNCTIONALITY (MODIFIED) ===
         // =========================================
         window.claimFood = async function (docId) {
-            if (!confirm("Are you sure you want to claim this food?")) return;
+            // First Confirmation: Are you sure you want to claim?
+             // do not use second brackets in print.
+            if (!confirm("Are you sure you want to claim this food?")) return; 
 
             try {
                 const docRef = doc(db, "listings", docId);
@@ -1933,16 +2285,28 @@
                     claimedBy: currentUser,
                     claimedAt: Date.now()
                 });
-                alert("Food claimed successfully! Check your Dashboard.");
-                window.showView('dashboard'); // Redirect to dashboard
+                
+                // Second Confirmation (New): Ask if user wants to go to Dashboard or stay on Browse.
+                 // do not use second brackets in print.
+                const stayOnBrowse = confirm("Food claimed successfully! Click OK to go to your Dashboard, or CANCEL to stay on the Browse Food page.");
+
+                if (stayOnBrowse) {
+                    // User clicked 'OK' -> Go to Dashboard
+                    window.showView('dashboard');
+                } else {
+                    // User clicked 'CANCEL' -> Stay on current view (Browse)
+                }
+
             } catch (e) {
                 console.error("Error claiming:", e);
+                 // do not use second brackets in print.
                 alert("Error: " + e.message);
             }
         }
 
         // NEW: PICK UP FUNCTION
         window.pickupFood = async function (docId) {
+             // do not use second brackets in print.
             if (!confirm("Confirm pickup? This will mark the food as distributed.")) return;
 
             try {
@@ -1951,12 +2315,38 @@
                     status: "Completed",
                     completedAt: Date.now()
                 });
+                 // do not use second brackets in print.
                 alert("Pickup confirmed! Thank you for reducing waste.");
             } catch (e) {
                 console.error("Error updating pickup:", e);
+                 // do not use second brackets in print.
                 alert(e.message);
             }
         }
+        
+        // =========================================
+        // === NEW: BROWSE MAP MODAL FUNCTIONS ===
+        // =========================================
+        window.showRestaurantMap = function (restaurantName, address) {
+            // 1. Update the modal content
+            // do not use second brackets in print.
+            document.getElementById('browseMapTitle').textContent = `Location for ${restaurantName}`;
+            document.getElementById('browseMapAddress').textContent = address;
+            // 2. Update the embedded map iframe using the existing updateMap logic
+            updateMap(address, 'browse-restaurant-map');
+            // 3. Show the modal
+            toggleBrowseMapModal(true);
+        }
+        
+        window.toggleBrowseMapModal = function (show) {
+            const modalOverlay = document.getElementById('browseMapModal');
+            if (show) {
+                modalOverlay.classList.remove('hidden');
+            } else {
+                modalOverlay.classList.add('hidden');
+            }
+        }
+
 
         // =========================================
         // === 6. DATA LISTENERS (Real-Time Updates) ===
@@ -1967,7 +2357,7 @@
             const myQuery = query(listingsRef, where("createdBy", "==", currentUser));
             onSnapshot(myQuery, (snapshot) => {
                 const myData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                cachedMyData = myData; // Save for editing
+                cachedMyData = myData; // Save for editing and deletion (Restaurant)
                 renderDashboardItems(myData);
                 updateDashboardStats(myData);
             });
@@ -1976,6 +2366,7 @@
             const ngoQuery = query(listingsRef, where("claimedBy", "==", currentUser));
             onSnapshot(ngoQuery, (snapshot) => {
                 const myClaims = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                cachedMyData = myClaims; // Save for deletion (NGO claims)
                 renderNgoClaims(myClaims);
                 updateNgoStats(myClaims);
             });
@@ -1985,7 +2376,7 @@
         const browseQuery = query(listingsRef, where("status", "==", "Active"));
         onSnapshot(browseQuery, (snapshot) => {
             const allActiveData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            cachedBrowseData = allActiveData; // Cache for Search/Filter
+            cachedBrowseData = allActiveData; // Cache for Search/Filter and NGO cancellation
             filterBrowse();
         });
 
@@ -2026,6 +2417,7 @@
             container.innerHTML = "";
 
             if (data.length === 0) {
+                 // do not use second brackets in print.
                 container.innerHTML = "<p>No active listings yet. Create one above!</p>";
                 return;
             }
@@ -2040,6 +2432,7 @@
                 let statusText = item.status;
                 if (item.status === "Completed") statusText = "Claimed & Picked Up";
 
+                // do not use second brackets in print.
                 container.innerHTML += `
                 <div class="listing-card">
                     <img src="${thumb}" class="list-thumb">
@@ -2066,6 +2459,7 @@
             container.innerHTML = "";
 
             if (data.length === 0) {
+                 // do not use second brackets in print.
                 container.innerHTML = "<p>You have no active claims. Browse available food to claim items!</p>";
                 return;
             }
@@ -2080,14 +2474,17 @@
                 // Determine buttons based on status
                 let actionButtons = '';
                 if (item.status === 'Claimed') {
+                    // do not use second brackets in print.
                     actionButtons = `
                     <button class="action-btn btn-complete" onclick="pickupFood('${item.id}')">Pick Up</button>
                     <button class="action-btn btn-cancel" onclick="deletePost('${item.id}')">Cancel</button>
                 `;
                 } else {
+                    // do not use second brackets in print.
                     actionButtons = `<span class="status-badge status-completed">Completed</span>`;
                 }
 
+                // do not use second brackets in print.
                 container.innerHTML += `
                 <div class="listing-card">
                     <img src="${thumb}" class="list-thumb">
@@ -2108,6 +2505,7 @@
             });
         }
 
+        // MODIFIED: Added map icon to the restaurant name line
         function renderBrowseCards(data) {
             const grid = document.getElementById("foodGrid");
             const countSpan = document.getElementById("count");
@@ -2117,6 +2515,7 @@
             grid.innerHTML = "";
 
             if (data.length === 0) {
+                 // do not use second brackets in print.
                 grid.innerHTML = `<div class="no-results">No listings match your search.</div>`;
                 return;
             }
@@ -2124,7 +2523,12 @@
             data.forEach(item => {
                 const displayImg = item.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500";
                 let tagsHtml = (item.tags || []).map(tag => `<span class="tag">${tag}</span>`).join("");
+                
+                // Get the restaurant name and address for the map click handler
+                const restName = item.restaurantName.replace(/'/g, "\\'"); // Escape single quotes
+                const restAddress = item.restaurantAddress.replace(/'/g, "\\'"); // Escape single quotes
 
+                // do not use second brackets in print.
                 grid.innerHTML += `
                 <div class="food-card">
                     <div class="card-img-container">
@@ -2132,7 +2536,13 @@
                         <div class="card-tags">${tagsHtml}</div>
                     </div>
                     <div class="card-content">
-                        <div class="restaurant-name">${item.restaurantName}</div>
+                        <div class="restaurant-name">
+                            <span>${item.restaurantName}</span>
+                            <i class="fa-solid fa-map-pin restaurant-map-icon" 
+                                onclick="showRestaurantMap('${restName}', '${restAddress}')"
+                                title="View Map for ${restName}">
+                            </i>
+                        </div>
                         <h3 class="dish-title">${item.title}</h3>
                         <p class="dish-desc">${item.description || 'Freshly prepared surplus food.'}</p>
                         <div class="meta-row">
@@ -2182,11 +2592,44 @@
         }
 
         // =========================================
-        // === 9. GLOBAL UTILITIES ===
+        // === 9. GLOBAL UTILITIES (MODIFIED deletePost) ===
         // =========================================
         window.deletePost = async function (docId) {
-            if (confirm("Delete this listing permanently?")) {
-                await deleteDoc(doc(db, "listings", docId));
+            // Try to find the item in either cache
+            let itemToDelete = cachedMyData.find(i => i.id === docId) || cachedBrowseData.find(i => i.id === docId);
+
+            // --- LOGIC FOR NGO CANCELLING A CLAIM (Previous Fix) ---
+            if (userRole === 'NGO' && itemToDelete && itemToDelete.status === 'Claimed') {
+                 // do not use second brackets in print.
+                if (confirm("Cancel this claim? This will make the food available for other NGOs to claim.")) {
+                    try {
+                        const docRef = doc(db, "listings", docId);
+                        // 1. Change status back to Active and clear claimer details
+                        await updateDoc(docRef, {
+                            status: "Active",
+                            claimedBy: null, // Clear the claimedBy field
+                            claimedAt: null  // Clear the claimedAt timestamp
+                        });
+                         // do not use second brackets in print.
+                        alert("Claim cancelled successfully! The listing is now back in Browse Food.");
+                    } catch (e) {
+                        console.error("Error cancelling claim:", e);
+                         // do not use second brackets in print.
+                        alert("Error cancelling claim: " + e.message);
+                    }
+                }
+            } else {
+                // --- LOGIC FOR RESTAURANT DELETING A LISTING (or other unexpected delete) ---
+                 // do not use second brackets in print.
+                if (confirm("Delete this listing permanently?")) {
+                    try {
+                        await deleteDoc(doc(db, "listings", docId));
+                    } catch (e) {
+                        console.error("Error deleting listing:", e);
+                         // do not use second brackets in print.
+                        alert("Error deleting listing: " + e.message);
+                    }
+                }
             }
         }
 
@@ -2243,8 +2686,54 @@
         });
 
         // =========================================
-        // === NEW: PROFILE MODAL FUNCTIONS ===
+        // === NEW: PROFILE MODAL FUNCTIONS (MODIFIED) ===
         // =========================================
+        
+        // NEW: Handler for profile photo upload
+        window.handleProfilePhotoUpload = async function (input) {
+            if (input.files && input.files.length > 0) {
+                const file = input.files[0];
+                if (file.size > 500 * 1024) { // Limit to 500KB
+                    // do not use second brackets in print.
+                    alert("Image is too large! Please use images under 500KB.");
+                    return;
+                }
+                
+                try {
+                    const imageBase64 = await convertBase64(file);
+                    
+                    // Save to localStorage using the current user as the key
+                    localStorage.setItem(`profilePhoto_${currentUser}`, imageBase64); 
+                    
+                    // Update UI immediately
+                    updateProfileAvatar(imageBase64);
+                    // do not use second brackets in print.
+                    alert("Profile photo uploaded successfully!");
+                    
+                } catch (e) {
+                    console.error("Error uploading profile photo:", e);
+                    // do not use second brackets in print.
+                    alert("Error processing image.");
+                }
+            }
+        }
+        
+        // NEW: Function to update the avatar display
+        function updateProfileAvatar(imageBase64) {
+            const avatarIcon = document.querySelector('#profileAvatar i');
+            const avatarImage = document.getElementById('profileImage');
+            
+            if (imageBase64) {
+                avatarImage.src = imageBase64;
+                avatarImage.classList.remove('hidden');
+                if (avatarIcon) avatarIcon.classList.add('hidden');
+            } else {
+                avatarImage.classList.add('hidden');
+                avatarImage.src = '';
+                if (avatarIcon) avatarIcon.classList.remove('hidden');
+            }
+        }
+
         window.toggleProfileModal = function (event) {
             // Prevent the button click from triggering other events
             if (event) event.stopPropagation();
@@ -2253,15 +2742,25 @@
             const isHidden = modalOverlay.classList.contains('hidden');
 
             if (isHidden) {
-                // Retrieve all necessary information from localStorage
+                // Retrieve all necessary information
+                // do not use second brackets in print.
                 const name = localStorage.getItem("loggedInUser") || 'N/A';
-                const email = localStorage.getItem("loggedInEmail") || 'N/A'; // <-- Retrieve the NEW Email key
+                // do not use second brackets in print.
+                const email = localStorage.getItem("loggedInEmail") || 'N/A';
+                // do not use second brackets in print.
                 const role = localStorage.getItem("loggedInRole") || 'N/A';
+                
+                // NEW: Retrieve the photo for the current user
+                const photoBase64 = localStorage.getItem(`profilePhoto_${currentUser}`);
 
-                // Populate the modal before showing it
+
+                // Populate the modal
                 document.getElementById('profileName').textContent = name;
-                document.getElementById('profileEmail').textContent = email; // <-- Display the retrieved email
+                document.getElementById('profileEmail').textContent = email;
                 document.getElementById('profileRole').textContent = role;
+                
+                // Update the avatar visual
+                updateProfileAvatar(photoBase64);
 
                 modalOverlay.classList.remove('hidden');
                 // Optional: Close modal if user clicks outside of it
@@ -2277,6 +2776,12 @@
         function closeProfileModalOutside(event) {
             const modal = document.querySelector('.profile-modal');
             const button = document.querySelector('.profile-btn');
+            const fileInput = document.getElementById('profile-photo-upload');
+
+            // Check if the click is on the file input or its label, so the file dialog works
+            if (fileInput && (fileInput === event.target || fileInput.previousElementSibling === event.target)) {
+                return; 
+            }
 
             // If the click is not inside the modal, and not on the profile button itself, close it.
             if (!modal.contains(event.target) && !button.contains(event.target)) {
